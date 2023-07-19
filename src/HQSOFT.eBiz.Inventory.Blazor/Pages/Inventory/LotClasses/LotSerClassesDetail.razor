@@ -1,0 +1,507 @@
+﻿
+@page "/Inventory/LotSerClasses/Detail/{Id}"
+
+@attribute [Authorize(InventoryPermissions.LotSerClasses.Default)]
+@using global::HQSOFT.eBiz.Inventory.LotSerClasses
+@using global::HQSOFT.eBiz.Inventory.LotSerSegments
+@using global::HQSOFT.eBiz.Inventory.Localization
+@using global::HQSOFT.eBiz.Inventory.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.eBiz.Inventory.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits InventoryComponentBase
+@inject ILotSerClassesAppService LotSerClassesAppService
+@inject ILotSerSegmentsAppService LotSerSegmentsAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+
+<PageHeader Title="@EditingLotSerClass.ClassID" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+    <p></p>
+</PageHeader>
+
+
+
+<Card>
+    <CardBody>
+     
+                <Validations @ref="@EditingLotSerClassValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingLotSerClass"
+                            ValidateOnLoad="false">
+
+ 
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["ClassID"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingLotSerClass.ClassID">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Description"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingLotSerClass.Description">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+                    @if (EditingLotSerClass.TrackingMethod == TrackingMethod.N && EditingLotSerClass.AssignMethod == AssignMethod.U)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip" Disabled="true">@L["RequiredforDropShip"]</Check>
+                        </Field>
+
+
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems" Disabled="true">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber" Disabled="true">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+
+                    else if (EditingLotSerClass.TrackingMethod == TrackingMethod.N && EditingLotSerClass.AssignMethod == AssignMethod.R)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip" Disabled="true">@L["RequiredforDropShip"]</Check>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["IssueMethod"]</FieldLabel>
+                            <Select TValue="IssueMethod" @bind-SelectedValue="@EditingLotSerClass.IssueMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(IssueMethod)))
+                                {
+                                    <SelectItem TValue="IssueMethod" Value="@((IssueMethod) itemValue)">
+                                        @L[$"Enum:IssueMethod.{((IssueMethod) itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems" Disabled="true">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber" Disabled="true">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+                    else if (EditingLotSerClass.TrackingMethod == TrackingMethod.L && EditingLotSerClass.AssignMethod == AssignMethod.U)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip">@L["RequiredforDropShip"]</Check>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber" Disabled="true">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+                    else if (EditingLotSerClass.TrackingMethod == TrackingMethod.L && EditingLotSerClass.AssignMethod == AssignMethod.R)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip">@L["RequiredforDropShip"]</Check>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["IssueMethod"]</FieldLabel>
+                            <Select TValue="IssueMethod" @bind-SelectedValue="@EditingLotSerClass.IssueMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(IssueMethod)))
+                                {
+                                    <SelectItem TValue="IssueMethod" Value="@((IssueMethod) itemValue)">
+                                        @L[$"Enum:IssueMethod.{((IssueMethod) itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber" Disabled="true">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0" Disabled="true">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+                    else if (EditingLotSerClass.TrackingMethod == TrackingMethod.S && EditingLotSerClass.AssignMethod == AssignMethod.R)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip">@L["RequiredforDropShip"]</Check>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["IssueMethod"]</FieldLabel>
+                            <Select TValue="IssueMethod" @bind-SelectedValue="@EditingLotSerClass.IssueMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(IssueMethod)))
+                                {
+                                    <SelectItem TValue="IssueMethod" Value="@((IssueMethod) itemValue)">
+                                        @L[$"Enum:IssueMethod.{((IssueMethod) itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+                    else if (EditingLotSerClass.TrackingMethod == TrackingMethod.S && EditingLotSerClass.AssignMethod == AssignMethod.U)
+                    {
+                        <Field>
+                            <FieldLabel>@L["TrackingMethod"]</FieldLabel>
+                            <Select TValue="TrackingMethod" @bind-SelectedValue="@EditingLotSerClass.TrackingMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(TrackingMethod)))
+                                {
+                                    <SelectItem TValue="TrackingMethod" Value="@((TrackingMethod)itemValue)">
+                                        @L[$"Enum:TrackingMethod.{((TrackingMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.TrackExpriationDate">@L["TrackExpriationDate"]</Check>
+                        </Field>
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.RequiredforDropShip">@L["RequiredforDropShip"]</Check>
+                        </Field>
+                        <Field>
+                            <FieldLabel>@L["AssignMethod"]</FieldLabel>
+                            <Select TValue="AssignMethod" @bind-SelectedValue="@EditingLotSerClass.AssignMethod">
+                                @foreach (var itemValue in Enum.GetValues(typeof(AssignMethod)))
+                                {
+                                    <SelectItem TValue="AssignMethod" Value="@((AssignMethod)itemValue)">
+                                        @L[$"Enum:AssignMethod.{((AssignMethod)itemValue).ToString("d")}"]
+                                    </SelectItem>
+                                }
+                            </Select>
+                        </Field>
+
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.ShareAutoIncremenitalValueBetwenAllClassItems">@L["ShareAutoIncremenitalValueBetwenAllClassItems"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["AutoIncremetalValue"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.AutoIncremetalValue" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+
+                        <Field>
+                            <Check TValue="bool" @bind-Checked="@EditingLotSerClass.AutoGenerateNextNumber">@L["AutoGenerateNextNumber"]</Check>
+                        </Field>
+
+                        <Field>
+                            <FieldLabel>@L["MaxAutoNumbers"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerClass.MaxAutoNumbers" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    }
+
+
+                </Validations>
+
+
+<DxFormLayout>
+        <DxFormLayoutItem BeginRow="true" ColSpanMd="12">
+<DxGrid @ref="Grid"
+            Data="listSegment"
+           @bind-SelectedDataItems="@selectedSegment"
+            SelectionMode="GridSelectionMode.Multiple"
+            AllowSelectRowByClick="true"
+            EditNewRowPosition="GridEditNewRowPosition.Bottom"
+            PagerPosition="GridPagerPosition.Bottom"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@(new int[] { 10, 20, 100, 500 })"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PagerSwitchToInputBoxButtonCount="10"
+            PagerVisibleNumericButtonCount="10"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            RowDoubleClick="Grid_OnRowDoubleClick"
+            FocusedRowEnabled="true" 
+            PageSize="12"
+            KeyFieldName="SegmentID"
+            ValidationEnabled="false"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            EditMode="GridEditMode.EditRow"
+            EditorRenderMode="GridEditorRenderMode.Integrated" >
+        <Columns>
+            <DxGridCommandColumn Width="160px" />
+            <DxGridDataColumn FieldName="SegmentID" DisplayFormat="D" MinWidth="50">                
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AsgmentType" DisplayFormat="D" MinWidth="50">
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Value" DisplayFormat="D" MinWidth="50">             
+            </DxGridDataColumn> 
+          
+        </Columns>
+       
+     
+    </DxGrid>
+   
+    <DxStackLayout>
+        <Items>
+            <Row>
+                <Column Style="padding:10px">
+                    <DxButton IconCssClass="fa fa-plus" Click="@(() => Grid.StartEditNewRowAsync())" />
+                  
+                    <DxButton IconCssClass="fa fa-minus" style=" background: red; border: red;" Click="@(() => Grid.CancelEditAsync())" />
+                </Column>
+            </Row>
+        </Items>
+    </DxStackLayout>
+       </DxFormLayoutItem>  
+    </DxFormLayout>
+
+    </CardBody>
+</Card>

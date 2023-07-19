@@ -1,0 +1,121 @@
+﻿@page "/Inventory/ReasonCodes"
+
+@attribute [Authorize(InventoryPermissions.ReasonCodes.Default)]
+@using System.Net.Http;
+@using HQSOFT.eBiz.Inventory.Blazor;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using global::HQSOFT.eBiz.Inventory.ReasonCodes
+@using global::HQSOFT.eBiz.Inventory.Localization
+@using global::HQSOFT.eBiz.Inventory.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.eBiz.Inventory.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits InventoryComponentBase
+@inject IReasonCodesAppService ReasonCodesAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["ReasonCodes"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="ReasonCodeSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="ReasonCodeSearchForm" Clicked="GetReasonCodesAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="ReasonCodeDto"
+                  Data="ReasonCodeList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  PageSize="PageSize"
+                 
+                  @bind-SelectedRows="selectedReasonCode"
+                  SelectionMode="Blazorise.DataGrid.DataGridSelectionMode.Multiple"
+                  Responsive>
+
+            <DataGridColumns>
+                <DataGridMultiSelectColumn TItem="ReasonCodeDto" Width="30px"></DataGridMultiSelectColumn>
+                <DataGridCommandColumn TItem="ReasonCodeDto" />
+                <DataGridColumn TItem="ReasonCodeDto"
+                                Field="ReasonCodeID"
+                                Filterable="false"
+                                Sortable="false"
+                                Caption="#"
+                                Width="10px">
+                    <DisplayTemplate>
+                        @{
+                            @(ReasonCodeList.ToList().IndexOf(context) + 1)
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="ReasonCodeDto"
+                                Field="ReasonCodeID"
+                                Caption="@L["Reason Code"]"
+                                Width="150px">
+                    <DisplayTemplate>
+                        @{
+                            <a class="d-block text-left" href="javascript:;" @onclick="() => GoToEditPage(context)">@((context as ReasonCodeDto).ReasonCodeID)</a>
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="ReasonCodeDto"
+                                Field="Descr"
+                                Caption="@L["Description"]"
+                                Width="300px">
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="ReasonCodeDto"
+                                Field="Usage"
+                                Caption="@L["Usage"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:ReasonCodeType.{context.Usage.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+
+

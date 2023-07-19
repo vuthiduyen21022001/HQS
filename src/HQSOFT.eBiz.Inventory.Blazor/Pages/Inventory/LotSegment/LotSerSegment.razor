@@ -1,0 +1,272 @@
+﻿@page "/Inventory/LotSerSegment"
+
+
+
+@attribute [Authorize(InventoryPermissions.LotSerSegments.Default)]
+@using global::HQSOFT.eBiz.Inventory.LotSerSegments
+@using global::HQSOFT.eBiz.Inventory.Localization
+@using global::HQSOFT.eBiz.Inventory.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.eBiz.Inventory.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits InventoryComponentBase
+@inject ILotSerSegmentsAppService LotSerSegmentsAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["LotSerSegments"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+        <Form id="LotSerSegmentSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="LotSerSegmentSearchForm" Clicked="GetLotSerSegmentsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="LotSerSegmentWithNavigationPropertiesDto"
+                  Data="LotSerSegmentList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize">
+            <DataGridColumns>
+                <DataGridEntityActionsColumn TItem="LotSerSegmentWithNavigationPropertiesDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="LotSerSegmentWithNavigationPropertiesDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                          Visible="@CanEditLotSerSegment"
+                                          Clicked="async () => await OpenEditLotSerSegmentModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                          Visible="@CanDeleteLotSerSegment"
+                                          Clicked="() => DeleteLotSerSegmentAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+
+                <DataGridColumn TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                Field="LotSerSegment.SegmentID"
+                                Caption="@L["SegmentID"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                Field="LotSerSegment.AsgmentType"
+                                Caption="@L["AsgmentType"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:Typeee.{context.LotSerSegment.AsgmentType.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                Field="LotSerSegment.Value"
+                                Caption="@L["Value"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="LotSerSegmentWithNavigationPropertiesDto"
+                                Field="LotSerClass.ClassID"
+                                Caption="@L["LotSerClass"]">
+                </DataGridColumn>
+
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateLotSerSegmentModal" Closing="@CreateLotSerSegmentModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="CreateLotSerSegmentForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewLotSerSegment"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateLotSerSegmentModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewLotSerSegmentValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@NewLotSerSegment"
+                             ValidateOnLoad="false">
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["SegmentID"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@NewLotSerSegment.SegmentID" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["AsgmentType"]</FieldLabel>
+                        <Select TValue="Typeee" @bind-SelectedValue="@NewLotSerSegment.AsgmentType">
+                            @foreach (var itemValue in Enum.GetValues(typeof(Typeee)))
+                            {
+                                <SelectItem TValue="Typeee" Value="@((Typeee) itemValue)">
+                                    @L[$"Enum:Typeee.{((Typeee) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Value"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewLotSerSegment.Value">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["LotSerClass"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewLotSerSegment.LotSerClassId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var lotSerClass in LotSerClassesCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@lotSerClass.Id">
+                                    @lotSerClass.DisplayName
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+
+
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateLotSerSegmentModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateLotSerSegmentForm" Clicked="CreateLotSerSegmentAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditLotSerSegmentModal" Closing="@EditLotSerSegmentModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+        <Form id="EditLotSerSegmentForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditLotSerSegmentModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingLotSerSegmentValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@EditingLotSerSegment"
+                             ValidateOnLoad="false">
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["SegmentID"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerSegment.SegmentID" Decimals="0">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </NumericPicker>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["AsgmentType"]</FieldLabel>
+                        <Select TValue="Typeee" @bind-SelectedValue="@EditingLotSerSegment.AsgmentType">
+                            @foreach (var itemValue in Enum.GetValues(typeof(Typeee)))
+                            {
+                                <SelectItem TValue="Typeee" Value="@((Typeee) itemValue)">
+                                    @L[$"Enum:Typeee.{((Typeee) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation>
+                        <Field>
+                            <FieldLabel>@L["Value"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingLotSerSegment.Value">
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["LotSerClass"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingLotSerSegment.LotSerClassId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var lotSerClass in LotSerClassesCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@lotSerClass.Id">
+                                    @lotSerClass.DisplayName
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+
+
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditLotSerSegmentModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateLotSerSegmentForm" Clicked="UpdateLotSerSegmentAsync" />
+            </ModalFooter>
+        </Form>
+    </ModalContent>
+</Modal>

@@ -1,0 +1,406 @@
+﻿@page "/Inventory/ReasonCodes/{Id}"
+
+@attribute [Authorize(InventoryPermissions.ReasonCodes.Default)]
+@using global::HQSOFT.eBiz.Inventory.ReasonCodes
+@using global::HQSOFT.eBiz.Inventory.Localization
+@using global::HQSOFT.eBiz.Inventory.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.eBiz.Inventory.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits InventoryComponentBase
+@inject IReasonCodesAppService ReasoncodesAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["ReasonCodes"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* EDIT ************************* *@
+
+<Card>
+    <CardBody>
+          <Validations @ref="@EditingReasonCodeValidations"
+                         Mode="ValidationMode.Auto"
+                         Model="@EditingReasonCode"
+                         ValidateOnLoad="false">
+
+                   <Column ColumnSize="ColumnSize.Is4">
+                        <Validation>
+                            <Field>
+                            <FieldLabel>@L["*Reason code"] *</FieldLabel>
+                            <TextEdit Placeholder="<New>" @bind-Text="@EditingReasonCode.ReasonCodeID" Casing="CharacterCasing.Upper">
+                                            <Feedback>
+                                                <ValidationError />
+                                            </Feedback>   
+
+                                     </TextEdit>                  
+                            </Field>
+                        </Validation>
+                   </Column>
+
+                    <Column ColumnSize="ColumnSize.Is4">
+                        <Validation>
+                                <Field>
+                                    <FieldLabel>@L["Description"]</FieldLabel>
+                                    <TextEdit @bind-Text="@EditingReasonCode.Descr"  >
+                                        <Feedback>
+                                            <ValidationError />
+                                        </Feedback>
+                                    </TextEdit>
+                                </Field>
+                        </Validation>
+                    </Column>
+
+
+
+                    <Column ColumnSize="ColumnSize.Is4">
+                        <Field>
+                            <FieldLabel>@L["Usage"]</FieldLabel>
+                            <Select TValue="ReasonCodeType" @bind-SelectedValue="@EditingReasonCode.Usage" >
+                                @foreach (var itemValue in Enum.GetValues(typeof(ReasonCodeType)))
+                        {
+                                        <SelectItem TValue="ReasonCodeType" Value="@((ReasonCodeType) itemValue)">
+                                @L[$"Enum:ReasonCodeType.{((ReasonCodeType) itemValue).ToString("d")}"]
+                                        </SelectItem>
+                        }
+                            </Select>
+                        </Field>
+                @if (EditingReasonCode.Usage == ReasonCodeType.Sales)
+                {
+                        <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sales Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SalesAcctID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sales Sub"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SalesSubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.CreditWriteOff)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>                                   
+                                                <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask" >
+
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>                                                                         
+                                                </TextEdit>
+                                @*        @if (TextEdit. == null  && TextEdit != 6)
+                                            {
+                                                <p class="text-danger">Name must be 6 characters long.</p>
+                                            }*@
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.BalanceWriteOff)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.Issue)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                    <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sales Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SalesAcctID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sales Sub"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SalesSubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.Receipt)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                    <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.Adjustment)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+                }
+
+                @if (EditingReasonCode.Usage == ReasonCodeType.AssemblyDisassembly)
+                {
+                                    <Column ColumnSize="ColumnSize.IsFull">
+                                        <Validation>
+                                            <Field>
+                                    <FieldLabel>@L["*Combine From Sub"]</FieldLabel>
+                                                <TextEdit @bind-Text="@EditingReasonCode.SubMask">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                     <Column ColumnSize="ColumnSize.Is12">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.AccountID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.Is12">
+                                        <Validation>
+                                            <Field>
+                                                <FieldLabel>@L["Sub Account"]</FieldLabel>
+                                                <NumericPicker TValue="int" @bind-Value="@EditingReasonCode.SubID" Decimals="0">
+                                                    <Feedback>
+                                                        <ValidationError />
+                                                    </Feedback>
+                                                </NumericPicker>
+                                            </Field>
+                                        </Validation>
+                                    </Column>
+                }
+                        </Column>  
+
+                </Validations>                   
+        </CardBody>
+</Card>
+
+
+

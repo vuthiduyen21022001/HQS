@@ -1,0 +1,147 @@
+﻿@page "/Inventory/LotSerClasses"
+
+
+
+@attribute [Authorize(InventoryPermissions.LotSerClasses.Default)]
+@using HQSOFT.eBiz.Inventory.Blazor;
+@using global::HQSOFT.eBiz.Inventory.LotSerClasses
+@using global::HQSOFT.eBiz.Inventory.LotSerSegments
+@using global::HQSOFT.eBiz.Inventory.Localization
+@using global::HQSOFT.eBiz.Inventory.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using global::HQSOFT.eBiz.Inventory.Permissions
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@inherits InventoryComponentBase
+@inject ILotSerClassesAppService LotSerClassesAppService
+@inject ILotSerSegmentsAppService LotSerSegmentsAppService
+@inject IUiMessageService UiMessageService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+<PageHeader Title="@L["LotSerClasses"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+
+<Card>
+    <CardBody>
+        <Form id="LotSerClassSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="LotSerClassSearchForm" Clicked="GetLotSerClassesAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+    </CardBody>
+</Card>
+
+
+<Card>
+    <CardBody>
+        <DataGrid TItem="LotSerClassDto"
+                  Data="LotSerClassList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  @bind-SelectedRows="selectedLotSerClass"
+                  SelectionMode="Blazorise.DataGrid.DataGridSelectionMode.Multiple">
+           
+
+                <DataGridColumns>
+                <DataGridMultiSelectColumn TItem="LotSerClassDto" Width="30px"></DataGridMultiSelectColumn>
+                <DataGridCommandColumn TItem="LotSerClassDto" />
+                <DataGridColumn TItem="LotSerClassDto"
+                                    Field="ClassID"
+                                    Filterable="false"
+                                    Sortable="false"
+                                    Caption="#"
+                                    Width="10px">
+                        <DisplayTemplate>
+                            
+                            @(LotSerClassList.ToList().IndexOf(context) + 1)
+                            }
+                        </DisplayTemplate>
+                    </DataGridColumn>
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="ClassID"
+                                Caption="@L["ClassID"]">
+                    <DisplayTemplate>
+                        <Link Underline="Underline.Always" Clicked="@(() => GoToEditPage(context))">@context.ClassID</Link>
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="Description"
+                                Caption="@L["Description"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="TrackingMethod"
+                                Caption="@L["TrackingMethod"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:TrackingMethod.{context.TrackingMethod.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="TrackExpriationDate"
+                                Caption="@L["TrackExpriationDate"]">
+                    <DisplayTemplate>
+                        @if (context.TrackExpriationDate)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="AssignMethod"
+                                Caption="@L["AssignMethod"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:AssignMethod.{context.AssignMethod.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="LotSerClassDto"
+                                Field="IssueMethod"
+                                Caption="@L["IssueMethod"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:IssueMethod.{context.IssueMethod.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+            </DataGridColumns>
+        </DataGrid>
+    </CardBody>
+</Card>
+
+   
+
