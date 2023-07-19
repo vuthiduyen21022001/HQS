@@ -67,7 +67,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
                 var serClassID = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
                 EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(serClassID);
             }
-            listSegment = await LotSerSegmentsAppService.GetListAllAttriDetail(EditingLotSerClassId);
+            listSegment = await LotSerSegmentsAppService.GetListAllClassDetail(EditingLotSerClassId);
         }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
@@ -265,7 +265,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
         }
         async Task UpdateDataAsync()
         {
-            listSegment = await LotSerSegmentsAppService.GetListAllAttriDetail(EditingLotSerClassId);
+            listSegment = await LotSerSegmentsAppService.GetListAllClassDetail(EditingLotSerClassId);
         }
         public Task UpdateListLotSegmentAsync(LotSerSegmentDto dataItem, LotSerSegmentDto newDataItem)
         {

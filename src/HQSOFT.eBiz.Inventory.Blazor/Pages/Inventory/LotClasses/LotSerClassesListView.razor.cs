@@ -68,7 +68,8 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
             _uiMessageService = uiMessageService;
         }
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task 
+            OnInitializedAsync()
         {
             await SetToolbarItemsAsync();
             await SetBreadcrumbItemsAsync();

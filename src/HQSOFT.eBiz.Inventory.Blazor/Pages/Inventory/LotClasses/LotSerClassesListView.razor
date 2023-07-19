@@ -40,10 +40,10 @@
         <Form id="LotSerClassSearchForm" class="mb-3">
             <Addons>
                 <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
+                     <Blazorise.Text @bind-Text="@Filter.FilterText"
                               Autofocus="true"
                               Placeholder="@L["Search"]">
-                    </TextEdit>
+                    </Blazorise.Text>
                 </Addon>
                 <Addon AddonType="AddonType.End">
                     <SubmitButton Form="LotSerClassSearchForm" Clicked="GetLotSerClassesAsync">
@@ -101,6 +101,7 @@
                                 Field="TrackingMethod"
                                 Caption="@L["TrackingMethod"]">
                     <DisplayTemplate>
+
                         @L[$"Enum:TrackingMethod.{context.TrackingMethod.ToString("d")}"]
                     </DisplayTemplate>
                 </DataGridColumn>

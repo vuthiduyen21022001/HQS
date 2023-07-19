@@ -86,12 +86,12 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             return _lotSerSegmentsAppService.GetDownloadTokenAsync();
         }
         [HttpGet]
-        [Route("a")]
+        [Route("list-detail/{id}")]
         public Task<List<LotSerSegmentDto>> GetListAllClassDetail(Guid id)
         {
             return _lotSerSegmentsAppService.GetListAllClassDetail(id);
         }
 
-    
+
     }
 }

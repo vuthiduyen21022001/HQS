@@ -152,14 +152,11 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             };
         }
 
-        public Task<List<LotSerSegmentDto>> GetListAllAttriDetail(Guid id)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<List<LotSerSegmentDto>> GetListAllClassDetail(Guid id)
+        public async Task<List<LotSerSegmentDto>> GetListAllClassDetail(Guid id)
         {
-            throw new NotImplementedException();
+            var serSegments = await _lotSerSegmentRepository.GetListAsync(x => x.LotSerClassId == id);
+            return ObjectMapper.Map<List<LotSerSegment>, List<LotSerSegmentDto>>(serSegments);
         }
     }
 }
