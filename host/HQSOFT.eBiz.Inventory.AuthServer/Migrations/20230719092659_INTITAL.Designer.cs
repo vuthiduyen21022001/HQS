@@ -13,8 +13,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace HQSOFT.eBiz.Inventory.Migrations
 {
     [DbContext(typeof(AuthServerHostMigrationsDbContext))]
-    [Migration("20230718040013_Inventory")]
-    partial class Inventory
+    [Migration("20230719092659_INTITAL")]
+    partial class INTITAL
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

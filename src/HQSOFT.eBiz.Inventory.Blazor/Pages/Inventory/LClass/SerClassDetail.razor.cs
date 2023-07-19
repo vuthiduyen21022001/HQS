@@ -18,12 +18,12 @@ using Volo.Abp.AspNetCore.Components.Messages;
 using static HQSOFT.eBiz.Inventory.Permissions.InventoryPermissions;
 using Microsoft.AspNetCore.Components;
 using Volo.Abp.ObjectMapping;
-using AutoMapper.Internal.Mappers;
 
-namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
+namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
 {
-    public partial class LotSerClassesDetail
+    public partial class SerClassDetail
     {
+
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar { get; } = new PageToolbar();
         private IReadOnlyList<LotSerClassDto> LotSerClassList { get; set; }
@@ -47,7 +47,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
 
         [Parameter]
         public string Id { get; set; }
-        public LotSerClassesDetail(IUiMessageService uiMessageService)
+        public SerClassDetail(IUiMessageService uiMessageService)
         {
             EditingLotSerClass = new LotSerClassUpdateDto();
             EditingLotSerClass.ConcurrencyStamp = string.Empty;
@@ -60,6 +60,13 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
             await SetToolbarItemsAsync();
             await SetBreadcrumbItemsAsync();
             await SetPermissionsAsync();
+
+            //EditingLotSerClassId = Guid.Parse(Id);
+            //if (EditingLotSerClassId != Guid.Empty)
+            //{
+            //    var reasonCode = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
+            //    EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(reasonCode);
+            //}
 
             EditingLotSerClassId = Guid.Parse(Id);
             if (EditingLotSerClassId != Guid.Empty)
@@ -147,7 +154,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
 
                 EditingLotSerClassId = serClass.Id;
                 EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(serClass);
-                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{EditingLotSerClassId}");
+                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{EditingLotSerClassId}");
 
             }
             catch (Exception ex)
@@ -207,7 +214,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
                 if (isNewNext)
                 {
 
-                    NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{Guid.Empty}", true);
+                    NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{Guid.Empty}", true);
 
                 }
 
@@ -253,7 +260,8 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
                 await LotSerSegmentsAppService.DeleteAsync(removetableDetail.Id);
                 await UpdateDataAsync();
             }
-
+            //var removetableDetail = (LotSerSegmentDto)e.DataItem;
+            //await LotSerSegmentsAppService.DeleteAsync(removetableDetail.Id);
         }
         void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
         {
@@ -284,6 +292,5 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
             FocusedColumn = e.Column.Name;
             await e.Grid.StartEditRowAsync(e.VisibleIndex);
         }
-
     }
 }

@@ -115,9 +115,9 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
         private async Task DownloadAsExcelAsync()
         {
             var token = (await LotSerSegmentsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Inventor") ??
+            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Inventory") ??
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/inventor/lot-ser-segments/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/inventory/lot-ser-segments/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}", forceLoad: true);
         }
 
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<LotSerSegmentWithNavigationPropertiesDto> e)

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Blazorise;
 using Blazorise.DataGrid;
 using Volo.Abp.BlazoriseUI.Components;
@@ -17,12 +21,9 @@ using Volo.Abp.AspNetCore.Components.Messages;
 using DevExpress.Blazor;
 using AutoMapper.Internal.Mappers;
 using Volo.Abp.ObjectMapping;
-using Microsoft.AspNetCore.Components;
-using Volo.Abp.Http.Client;
-
-namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
+namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
 {
-    public partial class LotSerClassesListView
+    public partial class SerClassListView
     {
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar { get; } = new PageToolbar();
@@ -53,7 +54,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
         private List<LotSerClassDto> selectedRows = new List<LotSerClassDto>();
 
 
-        public LotSerClassesListView(IUiMessageService uiMessageService)
+        public SerClassListView(IUiMessageService uiMessageService)
         {
             //NewLotSerClass = new LotSerClassCreateDto();
             //EditingLotSerClass = new LotSerClassUpdateDto();
@@ -68,14 +69,13 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
             _uiMessageService = uiMessageService;
         }
 
-        protected override async Task 
-            OnInitializedAsync()
+        protected override async Task OnInitializedAsync()
         {
             await SetToolbarItemsAsync();
             await SetBreadcrumbItemsAsync();
             await SetPermissionsAsync();
             await GetLotSerClassesAsync();
-
+            //DataSource = await Get();
         }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
@@ -90,7 +90,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
 
             Toolbar.AddButton(L["New"], () =>
             {
-                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{Guid.Empty}");
+                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{Guid.Empty}");
                 return Task.CompletedTask;
             }, IconName.Add, requiredPolicyName: InventoryPermissions.LotSerClasses.Create);
 
@@ -118,7 +118,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
 
         protected void GoToEditPage(LotSerClassDto context)
         {
-            NavigationManager.NavigateTo($"Inventory/LotSerClasses/Detail/{context.Id}");
+            NavigationManager.NavigateTo($"Inventory/LotSerClasses/{context.Id}");
         }
 
         private async Task SetPermissionsAsync()
@@ -268,19 +268,11 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotClasses
             await InvokeAsync(StateHasChanged);
         }
 
-       
+     
         private async Task DeleteLotSerClassesAsync(Guid Id)
         {
             await LotSerClassesAppService.DeleteAsync(Id);
             NavigationManager.NavigateTo("/Inventory/LotSerClasses");
         }
-
-
-
-
-
-
-
     }
-
 }

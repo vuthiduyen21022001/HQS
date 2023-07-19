@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HQSOFT.eBiz.Inventory.Migrations
 {
     /// <inheritdoc />
-    public partial class Inventory : Migration
+    public partial class INTITAL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

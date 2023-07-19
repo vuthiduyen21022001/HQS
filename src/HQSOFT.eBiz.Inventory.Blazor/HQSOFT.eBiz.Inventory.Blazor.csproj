@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Remove="Pages\Inventory\LotClasses\LotSerClassesDetail.razor" />
-      <Content Remove="Pages\Inventory\LotClasses\LotSerClassesListView.razor" />
+      <None Remove="Pages\Inventory\LClass\SerClassDetail.razor.cs~RFb5be5.TMP" />
+      <None Remove="Pages\Inventory\LClass\SerClassDetail.razor~RF6197b4.TMP" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,24 +21,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\HQSOFT.eBiz.Inventory.Application.Contracts\HQSOFT.eBiz.Inventory.Application.Contracts.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Pages\Inventory\LotClasses\LotSerClassesListView.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Pages\Inventory\LotClasses\LotSerClassesDetail.razor" />
-      <_ContentIncludedByDefault Remove="Pages\Inventory\LotClasses\LotSerClassesListView.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Include="Pages\Inventory\LotClasses\LotSerClassesDetail.razor" />
-      <None Include="Pages\Inventory\LotClasses\LotSerClassesListView.razor" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Pages\Inventory\LotClasses\LotSerClassesDetail.razor" />
     </ItemGroup>
 
 </Project>

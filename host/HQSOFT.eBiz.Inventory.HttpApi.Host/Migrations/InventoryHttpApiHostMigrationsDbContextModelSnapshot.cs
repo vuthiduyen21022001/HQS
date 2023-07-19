@@ -171,6 +171,9 @@ namespace HQSOFT.eBiz.Inventory.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<Guid?>("LotSerClassId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("SegmentID")
                         .HasColumnType("integer")
                         .HasColumnName("SegmentID");
@@ -181,6 +184,8 @@ namespace HQSOFT.eBiz.Inventory.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LotSerClassId");
+
                     b.ToTable("InventoryLotSerSegments", (string)null);
                 });
 
@@ -190,7 +195,7 @@ namespace HQSOFT.eBiz.Inventory.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AccountID")
+                    b.Property<int?>("AccountID")
                         .HasColumnType("integer")
                         .HasColumnName("AccountID");
 
@@ -244,20 +249,21 @@ namespace HQSOFT.eBiz.Inventory.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ReasonCodeID");
 
-                    b.Property<int>("SalesAcctID")
+                    b.Property<int?>("SalesAcctID")
                         .HasColumnType("integer")
                         .HasColumnName("SalesAcctID");
 
-                    b.Property<int>("SalesSubID")
+                    b.Property<int?>("SalesSubID")
                         .HasColumnType("integer")
                         .HasColumnName("SalesSubID");
 
-                    b.Property<int>("SubID")
+                    b.Property<int?>("SubID")
                         .HasColumnType("integer")
                         .HasColumnName("SubID");
 
                     b.Property<string>("SubMask")
-                        .HasColumnType("text")
+                        .HasMaxLength(6)
+                        .HasColumnType("character varying(6)")
                         .HasColumnName("SubMask");
 
                     b.Property<int>("Usage")
@@ -675,6 +681,14 @@ namespace HQSOFT.eBiz.Inventory.Migrations
                         .IsUnique();
 
                     b.ToTable("AbpSettings", (string)null);
+                });
+
+            modelBuilder.Entity("HQSOFT.eBiz.Inventory.LotSerSegments.LotSerSegment", b =>
+                {
+                    b.HasOne("HQSOFT.eBiz.Inventory.LotSerClasses.LotSerClass", null)
+                        .WithMany()
+                        .HasForeignKey("LotSerClassId")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>

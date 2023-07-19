@@ -1,5 +1,4 @@
-﻿
-@page "/Inventory/LotSerClasses/Detail/{Id}"
+﻿@page "/Inventory/LotSerClasses/{Id}"
 
 @attribute [Authorize(InventoryPermissions.LotSerClasses.Default)]
 @using global::HQSOFT.eBiz.Inventory.LotSerClasses
@@ -30,11 +29,12 @@
 
 
 
+@* ************************* PAGE HEADER ************************* *@
 <PageHeader Title="@EditingLotSerClass.ClassID" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
     <p></p>
 </PageHeader>
 
-
+@* ************************* EDIT ************************* *@
 
 <Card>
     <CardBody>
@@ -48,21 +48,21 @@
                     <Validation>
                         <Field>
                             <FieldLabel>@L["ClassID"] *</FieldLabel>
-                            <Blazorise.Text @bind-Text="@EditingLotSerClass.ClassID">
+                            <TextEdit @bind-Text="@EditingLotSerClass.ClassID">
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
-                            </Blazorise.Text>
+                            </TextEdit>
                         </Field>
                     </Validation>
                     <Validation>
                         <Field>
                             <FieldLabel>@L["Description"] *</FieldLabel>
-                            <Blazorise.Text @bind-Text="@EditingLotSerClass.Description">
+                            <TextEdit @bind-Text="@EditingLotSerClass.Description">
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
-                            </Blazorise.Text>
+                            </TextEdit>
                         </Field>
                     </Validation>
 
@@ -449,9 +449,9 @@
 
                 </Validations>
 
-
+@*
 <DxFormLayout>
-        <DxFormLayoutItem BeginRow="true" ColSpanMd="12">
+        <DxFormLayoutItem BeginRow="true" ColSpanMd="12">*@
 <DxGrid @ref="Grid"
             Data="listSegment"
            @bind-SelectedDataItems="@selectedSegment"
@@ -489,7 +489,7 @@
      
     </DxGrid>
    
-    <DxStackLayout>
+  @*  <DxStackLayout>
         <Items>
             <Row>
                 <Column Style="padding:10px">
@@ -501,7 +501,8 @@
         </Items>
     </DxStackLayout>
        </DxFormLayoutItem>  
-    </DxFormLayout>
+    </DxFormLayout>*@
 
     </CardBody>
 </Card>
+

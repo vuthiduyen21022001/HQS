@@ -3,7 +3,6 @@
 
 
 @attribute [Authorize(InventoryPermissions.LotSerClasses.Default)]
-@using HQSOFT.eBiz.Inventory.Blazor;
 @using global::HQSOFT.eBiz.Inventory.LotSerClasses
 @using global::HQSOFT.eBiz.Inventory.LotSerSegments
 @using global::HQSOFT.eBiz.Inventory.Localization
@@ -30,20 +29,22 @@
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
 
+
+@* ************************* PAGE HEADER ************************* *@
 <PageHeader Title="@L["LotSerClasses"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
 
-
+@* ************************* SEARCH ************************* *@
 <Card>
     <CardBody>
         <Form id="LotSerClassSearchForm" class="mb-3">
             <Addons>
                 <Addon AddonType="AddonType.Body">
-                     <Blazorise.Text @bind-Text="@Filter.FilterText"
+                    <TextEdit @bind-Text="@Filter.FilterText"
                               Autofocus="true"
                               Placeholder="@L["Search"]">
-                    </Blazorise.Text>
+                    </TextEdit>
                 </Addon>
                 <Addon AddonType="AddonType.End">
                     <SubmitButton Form="LotSerClassSearchForm" Clicked="GetLotSerClassesAsync">
@@ -55,7 +56,7 @@
     </CardBody>
 </Card>
 
-
+@* ************************* DATA GRID ************************* *@
 <Card>
     <CardBody>
         <DataGrid TItem="LotSerClassDto"
@@ -67,23 +68,23 @@
                   PageSize="PageSize"
                   @bind-SelectedRows="selectedLotSerClass"
                   SelectionMode="Blazorise.DataGrid.DataGridSelectionMode.Multiple">
-           
 
-                <DataGridColumns>
+
+            <DataGridColumns>
                 <DataGridMultiSelectColumn TItem="LotSerClassDto" Width="30px"></DataGridMultiSelectColumn>
                 <DataGridCommandColumn TItem="LotSerClassDto" />
                 <DataGridColumn TItem="LotSerClassDto"
-                                    Field="ClassID"
-                                    Filterable="false"
-                                    Sortable="false"
-                                    Caption="#"
-                                    Width="10px">
-                        <DisplayTemplate>
-                            
+                                Field="ClassID"
+                                Filterable="false"
+                                Sortable="false"
+                                Caption="#"
+                                Width="10px">
+                    <DisplayTemplate>
+                        @{
                             @(LotSerClassList.ToList().IndexOf(context) + 1)
-                            }
-                        </DisplayTemplate>
-                    </DataGridColumn>
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
                 <DataGridColumn TItem="LotSerClassDto"
                                 Field="ClassID"
                                 Caption="@L["ClassID"]">
@@ -101,7 +102,6 @@
                                 Field="TrackingMethod"
                                 Caption="@L["TrackingMethod"]">
                     <DisplayTemplate>
-
                         @L[$"Enum:TrackingMethod.{context.TrackingMethod.ToString("d")}"]
                     </DisplayTemplate>
                 </DataGridColumn>
@@ -144,5 +144,5 @@
     </CardBody>
 </Card>
 
-   
+
 
