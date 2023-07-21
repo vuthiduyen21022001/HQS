@@ -46,7 +46,7 @@
                         <Validation>
                             <Field>
                             <FieldLabel>@L["*Reason code"] *</FieldLabel>
-                            <TextEdit Placeholder="<New>" @bind-Text="@EditingReasonCode.ReasonCodeID" Casing="CharacterCasing.Upper">
+                        <TextEdit Placeholder="<New>" @bind-Text="@EditingReasonCode.ReasonCodeID" @oninput="OnClassIDInput">
                                             <Feedback>
                                                 <ValidationError />
                                             </Feedback>   

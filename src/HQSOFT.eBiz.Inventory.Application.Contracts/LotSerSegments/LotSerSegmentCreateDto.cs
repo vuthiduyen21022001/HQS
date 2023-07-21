@@ -11,5 +11,6 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
         public Typeee AsgmentType { get; set; } = ((Typeee[])Enum.GetValues(typeof(Typeee)))[0];
         public string? Value { get; set; }
         public Guid? LotSerClassId { get; set; }
+   
     }
 }

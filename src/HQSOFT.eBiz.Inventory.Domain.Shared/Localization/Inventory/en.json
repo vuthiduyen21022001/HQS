@@ -45,8 +45,8 @@
     "MaxSalesSubID": "Max Sales Sub I D",
     "Menu:ReasonCodes": "Reason Codes",
     "Enum:ReasonCodeType.1": "Transfer",
-    "Enum:ReasonCodeType.2": "Credit write off",
-    "Enum:ReasonCodeType.3": "Balance write off",
+    "Enum:ReasonCodeType.2": "Credit Write-Off",
+    "Enum:ReasonCodeType.3": "Balance Write-Off",
     "Enum:ReasonCodeType.4": "Issue",
     "Enum:ReasonCodeType.5": "Receipt",
     "Enum:ReasonCodeType.6": "Adjustment",
@@ -133,6 +133,6 @@
     "MinAsgmentType": "Min Asgment Type",
     "MinValue": "Min Value",
     "MaxAsgmentType": "Max Asgment Type",
-    "MaxValue": "Max Value",
+    "MaxValue": "Max Value"
   }
 }

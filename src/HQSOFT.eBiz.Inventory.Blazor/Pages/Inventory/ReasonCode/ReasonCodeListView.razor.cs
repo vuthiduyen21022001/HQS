@@ -156,10 +156,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.ReasonCode
 
         private async Task OnPageIndexChanged(int newPageIndex)
         {
-            //CurrentSorting = OrderTypeListGrid.Data. .Columns
-            //    .Where(c => c.SortDirection != SortDirection.Default)
-            //    .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-            //    .JoinAsString(",");
+          
             CurrentPage = newPageIndex;
             await GetReasonCodesAsync();
             await InvokeAsync(StateHasChanged);

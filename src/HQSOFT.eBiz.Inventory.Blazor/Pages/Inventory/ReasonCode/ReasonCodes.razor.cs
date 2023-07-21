@@ -160,8 +160,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.ReasonCode
                 }
                 if (isNewNext)
                 {
-                    //EditingOrderType = new OrderTypeUpdateDto();
-                    //EditingOrderType.ConcurrencyStamp = string.Empty;
+                
                     NavigationManager.NavigateTo($"Inventory/ReasonCodes/{Guid.Empty}", true);
 
                 }
@@ -176,6 +175,15 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.ReasonCode
         {
             await ReasoncodesAppService.DeleteAsync(Id);
             NavigationManager.NavigateTo("Inventory/ReasonCodes");
+        }
+
+
+        //========chữ hoa====
+
+        private void OnClassIDInput(ChangeEventArgs e)
+        {
+            string inputValue = e.Value?.ToString() ?? string.Empty;
+            EditingReasonCode.ReasonCodeID = inputValue.ToUpper();
         }
     }
 }

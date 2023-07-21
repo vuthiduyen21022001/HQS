@@ -21,6 +21,7 @@
 @using Microsoft.AspNetCore.Components
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.Http.Client
+
 @inherits InventoryComponentBase
 @inject ILotSerClassesAppService LotSerClassesAppService
 @inject ILotSerSegmentsAppService LotSerSegmentsAppService
@@ -48,12 +49,12 @@
  
                     <Validation>
                         <Field>
-                            <FieldLabel>@L["ClassID"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingLotSerClass.ClassID">
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
+                        <FieldLabel>@L["ClassID"] *</FieldLabel>
+                        <TextEdit @bind-Text="@EditingLotSerClass.ClassID"  @oninput="OnClassIDInput">
+                            <Feedback>
+                                <ValidationError />
+                            </Feedback>
+                        </TextEdit>
                         </Field>
                     </Validation>
                     <Validation>
@@ -463,19 +464,22 @@
                 AllowSelectRowByClick="true"
                 EditMode="GridEditMode.EditRow"
                 EditNewRowPosition="GridEditNewRowPosition.Bottom"
-                PageSize="12"
+                PageSize="@PageSize"
                 PagerPosition="GridPagerPosition.Bottom"
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorItems="@(new int[] { 10, 20, 100, 500 })"
                 PageSizeSelectorAllRowsItemVisible="true"
+                PagerSwitchToInputBoxButtonCount="@PageSize"
+                PagerVisibleNumericButtonCount="@PageSize"
                 PagerNavigationMode="PagerNavigationMode.InputBox"
-                RowDoubleClick="Grid_OnRowDoubleClick"
+                RowDoubleClick="SegmentGrid_OnRowDoubleClick"
                 FocusedRowEnabled="true"
-                FocusedRowChanged="Grid_OnFocusedRowChanged"
-                CustomizeEditModel="Grid_OnCustomizeEditModel"
-                EditModelSaving="Grid_EditModelSaving"
-                DataItemDeleting="Grid_DataItemDeleting"
+                FocusedRowChanged="SegmentGrid_OnFocusedRowChanged"
+                CustomizeEditModel="SegmentGrid_OnCustomizeEditModel"
+                EditModelSaving="SegmentGrid_EditModelSaving"
+                DataItemDeleting="SegmentGrid_DataItemDeleting"
                 EditorRenderMode="GridEditorRenderMode.Integrated"
+                KeyboardNavigationEnabled ="true"
                 CssClass="ch-360">
             <Columns>
                 <DxGridSelectionColumn />
@@ -490,18 +494,18 @@
             </Columns>
         </DxGrid>
         <Div class="mt-1 bt-1">
-            <Button Color="Color.Primary" Clicked="BtnAdd_Grid_OnClick" Size="Size.Small">
+            <Button Color="Color.Primary" Clicked="BtnAdd_SegmentGrid_OnClick" Size="Size.Small">
                 <i class="fa-plus fa"></i>
             </Button>
             <Button Color="Color.Secondary" Clicked="SegmentGrid.CancelEditAsync" Size="Size.Small">
                 <i class="fa-undo fa"></i>
             </Button>
-            <Button Color="Color.Danger" Clicked="BtnDelete_Grid_OnClick" Size="Size.Small">
+            <Button Color="Color.Danger" Clicked="BtnDelete_SegmentGrid_OnClick" Size="Size.Small">
                 <i class="fa-trash fa"></i>
             </Button>
-            <Button Color="Color.Danger" Clicked="SegmentGrid.SaveChangesAsync" Size="Size.Small">
+         @*   <Button Color="Color.Danger" Clicked="SegmentGrid.SaveChangesAsync" Size="Size.Small">
                 <i class="fa-square-check fa"></i>
-            </Button>
+            </Button>*@
         </Div>
     </CardBody>
 </Card>
