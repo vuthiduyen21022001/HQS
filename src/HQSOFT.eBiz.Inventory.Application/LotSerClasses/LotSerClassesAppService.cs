@@ -59,7 +59,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
         }
 
         [Authorize(InventoryPermissions.LotSerClasses.Create)]
-        public virtual async Task<LotSerClassDto> CreateAsync(LotSerClassCreateDto input)
+        public virtual async Task<LotSerClassDto> CreateAsync(LotSerClassUpdateDto input)
         {
 
             var lotSerClass = await _lotSerClassManager.CreateAsync(
@@ -115,6 +115,11 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
             {
                 Token = token
             };
+        }
+
+        public Task<PagedResultDto<LookupDto<Guid>>> GetCustomerLookupAsync(LookupRequestDto input)
+        {
+            throw new NotImplementedException();
         }
     }
 }

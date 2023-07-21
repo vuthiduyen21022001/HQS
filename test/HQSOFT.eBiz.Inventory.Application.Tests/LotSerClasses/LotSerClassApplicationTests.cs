@@ -46,7 +46,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
         public async Task CreateAsync()
         {
             // Arrange
-            var input = new LotSerClassCreateDto
+            var input = new LotSerClassUpdateDto
             {
                 ClassID = "bb487b7d49384b3aa32188f55f119624903ee9f9cd8b4003a29251917939ed9e37a",
                 Description = "9a552dd3ba934893b7430b385e1551d1a86c9500",

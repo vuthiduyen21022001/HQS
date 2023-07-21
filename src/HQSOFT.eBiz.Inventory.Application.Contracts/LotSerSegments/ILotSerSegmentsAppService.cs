@@ -10,7 +10,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
 {
     public interface ILotSerSegmentsAppService : IApplicationService
     {
-        Task<PagedResultDto<LotSerSegmentWithNavigationPropertiesDto>> GetListAsync(GetLotSerSegmentsInput input);
+        Task<PagedResultDto<LotSerSegmentDto>> GetListAsync(GetLotSerSegmentsInput input);
 
         Task<LotSerSegmentWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id);
 
@@ -20,7 +20,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
 
         Task DeleteAsync(Guid id);
 
-        Task<LotSerSegmentDto> CreateAsync(LotSerSegmentCreateDto input);
+        Task<LotSerSegmentDto> CreateAsync(LotSerSegmentUpdateDto input);
 
         Task<LotSerSegmentDto> UpdateAsync(Guid id, LotSerSegmentUpdateDto input);
 

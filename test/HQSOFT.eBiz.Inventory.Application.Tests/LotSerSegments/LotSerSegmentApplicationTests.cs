@@ -27,8 +27,8 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.LotSerSegment.Id == Guid.Parse("67221fbd-922a-443c-8876-9cc3e9b9bab4")).ShouldBe(true);
-            result.Items.Any(x => x.LotSerSegment.Id == Guid.Parse("43bbddcf-b008-4822-8db3-2af370e46460")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("67221fbd-922a-443c-8876-9cc3e9b9bab4")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("43bbddcf-b008-4822-8db3-2af370e46460")).ShouldBe(true);
         }
 
         [Fact]
@@ -45,8 +45,8 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
         [Fact]
         public async Task CreateAsync()
         {
-            // Arrange
-            var input = new LotSerSegmentCreateDto
+            // Arrangegm
+            var input = new LotSerSegmentUpdateDto
             {
                 SegmentID = 1140956289,
                 AsgmentType = default,

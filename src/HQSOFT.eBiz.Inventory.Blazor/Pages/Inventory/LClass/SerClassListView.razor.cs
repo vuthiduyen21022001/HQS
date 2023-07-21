@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Blazorise;
 using Blazorise.DataGrid;
 using Volo.Abp.BlazoriseUI.Components;
@@ -56,8 +52,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
 
         public SerClassListView(IUiMessageService uiMessageService)
         {
-            //NewLotSerClass = new LotSerClassCreateDto();
-            //EditingLotSerClass = new LotSerClassUpdateDto();
+            ;
             Filter = new GetLotSerClassesInput
             {
                 MaxResultCount = PageSize,
@@ -74,8 +69,8 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
             await SetToolbarItemsAsync();
             await SetBreadcrumbItemsAsync();
             await SetPermissionsAsync();
-            await GetLotSerClassesAsync();
-            //DataSource = await Get();
+
+
         }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
@@ -90,7 +85,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
 
             Toolbar.AddButton(L["New"], () =>
             {
-                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{Guid.Empty}");
+                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{Guid.Empty}");
                 return Task.CompletedTask;
             }, IconName.Add, requiredPolicyName: InventoryPermissions.LotSerClasses.Create);
 
@@ -116,10 +111,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
             return ValueTask.CompletedTask;
         }
 
-        protected void GoToEditPage(LotSerClassDto context)
-        {
-            NavigationManager.NavigateTo($"Inventory/LotSerClasses/{context.Id}");
-        }
+     
 
         private async Task SetPermissionsAsync()
         {
@@ -140,7 +132,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
             var result = await LotSerClassesAppService.GetListAsync(Filter);
             LotSerClassList = result.Items;
             TotalCount = (int)result.TotalCount;
-            await InvokeAsync(StateHasChanged);
+
         }
 
         protected virtual async Task SearchAsync()
@@ -169,110 +161,17 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
             await InvokeAsync(StateHasChanged);
         }
 
-        private async Task OpenCreateLotSerClassModalAsync()
-        {
-            NewLotSerClass = new LotSerClassCreateDto
-            {
-
-
-            };
-            await NewLotSerClassValidations.ClearAll();
-            await CreateLotSerClassModal.Show();
-        }
-
-        private async Task CloseCreateLotSerClassModalAsync()
-        {
-            NewLotSerClass = new LotSerClassCreateDto
-            {
-
-
-            };
-            await CreateLotSerClassModal.Hide();
-        }
-
-        private async Task OpenEditLotSerClassModalAsync(LotSerClassDto input)
-        {
-            var lotSerClass = await LotSerClassesAppService.GetAsync(input.Id);
-
-            EditingLotSerClassId = lotSerClass.Id;
-            EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(lotSerClass);
-            await EditingLotSerClassValidations.ClearAll();
-            await EditLotSerClassModal.Show();
-        }
 
         private async Task DeleteLotSerClassAsync(LotSerClassDto input)
         {
             await LotSerClassesAppService.DeleteAsync(input.Id);
             await GetLotSerClassesAsync();
         }
-
-        private async Task CreateLotSerClassAsync()
+        protected void GoToEditPage(LotSerClassDto context)
         {
-            try
-            {
-                if (await NewLotSerClassValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await LotSerClassesAppService.CreateAsync(NewLotSerClass);
-                await GetLotSerClassesAsync();
-                await CloseCreateLotSerClassModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditLotSerClassModalAsync()
-        {
-            await EditLotSerClassModal.Hide();
-        }
-
-        private async Task UpdateLotSerClassAsync()
-        {
-            try
-            {
-                if (await EditingLotSerClassValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await LotSerClassesAppService.UpdateAsync(EditingLotSerClassId, EditingLotSerClass);
-                await GetLotSerClassesAsync();
-                await EditLotSerClassModal.Hide();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-
-        private async Task OnPageIndexChanged(int newPageIndex)
-        {
-
-
-            CurrentPage = newPageIndex;
-            await GetLotSerClassesAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
-     
-        private async Task DeleteLotSerClassesAsync(Guid Id)
-        {
-            await LotSerClassesAppService.DeleteAsync(Id);
-            NavigationManager.NavigateTo("/Inventory/LotSerClasses");
+            NavigationManager.NavigateTo($"Inventory/LotSerClasses/Detail/{context.Id}");
         }
     }
-}
+    }
+
+

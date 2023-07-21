@@ -15,7 +15,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
 
         Task DeleteAsync(Guid id);
 
-        Task<LotSerClassDto> CreateAsync(LotSerClassCreateDto input);
+        Task<LotSerClassDto> CreateAsync(LotSerClassUpdateDto input);
 
         Task<LotSerClassDto> UpdateAsync(Guid id, LotSerClassUpdateDto input);
 

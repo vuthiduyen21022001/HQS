@@ -33,6 +33,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
                     int? segmentIDMax = null,
                     Typeee? asgmentType = null,
                     string value = null,
+                     Guid? lotSerClassId = null,
                     string sorting = null,
                     int maxResultCount = int.MaxValue,
                     int skipCount = 0,

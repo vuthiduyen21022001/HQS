@@ -56,8 +56,8 @@
 @* ************************* DATA GRID ************************* *@
 <Card>
     <CardBody>
-        <DataGrid TItem="LotSerSegmentWithNavigationPropertiesDto"
-                  Data="LotSerSegmentList"
+        <DataGrid TItem="LotSerSegmentDto"
+                  Data="SegmentListt"
                   ReadData="OnDataGridReadAsync"
                   TotalItems="TotalCount"
                   ShowPager="true"
@@ -114,20 +114,20 @@
     <ModalContent Centered="true">
         <Form id="CreateLotSerSegmentForm">
             <ModalHeader>
-                <ModalTitle>@L["NewLotSerSegment"]</ModalTitle>
+                <ModalTitle>@L["EditingLotSerSegment"]</ModalTitle>
                 <CloseButton Clicked="CloseCreateLotSerSegmentModalAsync" />
             </ModalHeader>
             <ModalBody>
-                <Validations @ref="@NewLotSerSegmentValidations"
+                <Validations @ref="@EditingLotSerSegmentValidations"
                              Mode="ValidationMode.Auto"
-                             Model="@NewLotSerSegment"
+                             Model="@EditingLotSerSegment"
                              ValidateOnLoad="false">
 
 
                     <Validation>
                         <Field>
                             <FieldLabel>@L["SegmentID"]</FieldLabel>
-                            <NumericPicker TValue="int" @bind-Value="@NewLotSerSegment.SegmentID" Decimals="0">
+                            <NumericPicker TValue="int" @bind-Value="@EditingLotSerSegment.SegmentID" Decimals="0">
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
@@ -138,7 +138,7 @@
 
                     <Field>
                         <FieldLabel>@L["AsgmentType"]</FieldLabel>
-                        <Select TValue="Typeee" @bind-SelectedValue="@NewLotSerSegment.AsgmentType">
+                        <Select TValue="Typeee" @bind-SelectedValue="@EditingLotSerSegment.AsgmentType">
                             @foreach (var itemValue in Enum.GetValues(typeof(Typeee)))
                             {
                                 <SelectItem TValue="Typeee" Value="@((Typeee) itemValue)">
@@ -152,7 +152,7 @@
                     <Validation>
                         <Field>
                             <FieldLabel>@L["Value"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewLotSerSegment.Value">
+                            <TextEdit @bind-Text="@EditingLotSerSegment.Value">
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
@@ -163,7 +163,7 @@
 
                     <Field>
                         <FieldLabel>@L["LotSerClass"]</FieldLabel>
-                        <Select TValue="Guid?" @bind-SelectedValue="@NewLotSerSegment.LotSerClassId">
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingLotSerSegment.LotSerClassId">
                             <SelectItem TValue="Guid?" Value="null"></SelectItem>
                             @foreach (var lotSerClass in LotSerClassesCollection)
                             {

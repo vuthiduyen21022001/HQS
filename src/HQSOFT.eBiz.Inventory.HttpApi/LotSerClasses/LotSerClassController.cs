@@ -37,7 +37,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
         }
 
         [HttpPost]
-        public virtual Task<LotSerClassDto> CreateAsync(LotSerClassCreateDto input)
+        public virtual Task<LotSerClassDto> CreateAsync(LotSerClassUpdateDto input)
         {
             return _lotSerClassesAppService.CreateAsync(input);
         }
@@ -69,5 +69,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerClasses
         {
             return _lotSerClassesAppService.GetDownloadTokenAsync();
         }
+
+     
     }
 }

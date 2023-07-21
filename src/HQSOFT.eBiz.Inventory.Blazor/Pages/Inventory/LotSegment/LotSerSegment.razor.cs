@@ -22,7 +22,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
     {
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar { get; } = new PageToolbar();
-        private IReadOnlyList<LotSerSegmentWithNavigationPropertiesDto> LotSerSegmentList { get; set; }
+        private IReadOnlyList<LotSerSegmentDto> SegmentListt { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -30,10 +30,9 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
         private bool CanCreateLotSerSegment { get; set; }
         private bool CanEditLotSerSegment { get; set; }
         private bool CanDeleteLotSerSegment { get; set; }
-        private LotSerSegmentCreateDto NewLotSerSegment { get; set; }
-        private Validations NewLotSerSegmentValidations { get; set; } = new();
-        private LotSerSegmentUpdateDto EditingLotSerSegment { get; set; }
+       
         private Validations EditingLotSerSegmentValidations { get; set; } = new();
+        private LotSerSegmentUpdateDto EditingLotSerSegment { get; set; }
         private Guid EditingLotSerSegmentId { get; set; }
         private Modal CreateLotSerSegmentModal { get; set; } = new();
         private Modal EditLotSerSegmentModal { get; set; } = new();
@@ -45,7 +44,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
 
         public LotSerSegment()
         {
-            NewLotSerSegment = new LotSerSegmentCreateDto();
+            EditingLotSerSegment = new LotSerSegmentUpdateDto();
             EditingLotSerSegment = new LotSerSegmentUpdateDto();
             Filter = new GetLotSerSegmentsInput
             {
@@ -53,7 +52,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            LotSerSegmentList = new List<LotSerSegmentWithNavigationPropertiesDto>();
+            SegmentListt = new List<LotSerSegmentDto>();
         }
 
         protected override async Task OnInitializedAsync()
@@ -76,7 +75,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
         {
             Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
 
-            Toolbar.AddButton(L["NewLotSerSegment"], async () =>
+            Toolbar.AddButton(L["EditingLotSerSegment"], async () =>
             {
                 await OpenCreateLotSerSegmentModalAsync();
             }, IconName.Add, requiredPolicyName: InventoryPermissions.LotSerSegments.Create);
@@ -101,9 +100,10 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
             Filter.Sorting = CurrentSorting;
 
             var result = await LotSerSegmentsAppService.GetListAsync(Filter);
-            LotSerSegmentList = result.Items;
+            SegmentListt = result.Items;
             TotalCount = (int)result.TotalCount;
         }
+  
 
         protected virtual async Task SearchAsync()
         {
@@ -120,7 +120,7 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/inventory/lot-ser-segments/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}", forceLoad: true);
         }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<LotSerSegmentWithNavigationPropertiesDto> e)
+        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<LotSerSegmentDto> e)
         {
             CurrentSorting = e.Columns
                 .Where(c => c.SortDirection != SortDirection.Default)
@@ -133,18 +133,18 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
 
         private async Task OpenCreateLotSerSegmentModalAsync()
         {
-            NewLotSerSegment = new LotSerSegmentCreateDto
+            EditingLotSerSegment = new LotSerSegmentUpdateDto
             {
 
 
             };
-            await NewLotSerSegmentValidations.ClearAll();
+            await EditingLotSerSegmentValidations.ClearAll();
             await CreateLotSerSegmentModal.Show();
         }
 
         private async Task CloseCreateLotSerSegmentModalAsync()
         {
-            NewLotSerSegment = new LotSerSegmentCreateDto
+            EditingLotSerSegment = new LotSerSegmentUpdateDto
             {
 
 
@@ -172,12 +172,12 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LotSegment
         {
             try
             {
-                if (await NewLotSerSegmentValidations.ValidateAll() == false)
+                if (await EditingLotSerSegmentValidations.ValidateAll() == false)
                 {
                     return;
                 }
 
-                await LotSerSegmentsAppService.CreateAsync(NewLotSerSegment);
+                await LotSerSegmentsAppService.CreateAsync(EditingLotSerSegment);
                 await GetLotSerSegmentsAsync();
                 await CloseCreateLotSerSegmentModalAsync();
             }

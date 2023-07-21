@@ -1,4 +1,5 @@
-﻿@page "/Inventory/LotSerClasses/{Id}"
+﻿              
+@page "/Inventory/LotSerClasses/Detail/{Id}"
 
 @attribute [Authorize(InventoryPermissions.LotSerClasses.Default)]
 @using global::HQSOFT.eBiz.Inventory.LotSerClasses
@@ -39,7 +40,7 @@
 <Card>
     <CardBody>
      
-                <Validations @ref="@EditingLotSerClassValidations"
+                <Validations @ref="@ClassValidations"
                             Mode="ValidationMode.Auto"
                             Model="@EditingLotSerClass"
                             ValidateOnLoad="false">
@@ -449,60 +450,58 @@
 
                 </Validations>
 
-@*
-<DxFormLayout>
-        <DxFormLayoutItem BeginRow="true" ColSpanMd="12">*@
-<DxGrid @ref="Grid"
-            Data="listSegment"
-           @bind-SelectedDataItems="@selectedSegment"
-            SelectionMode="GridSelectionMode.Multiple"
-            AllowSelectRowByClick="true"
-            EditNewRowPosition="GridEditNewRowPosition.Bottom"
-            PagerPosition="GridPagerPosition.Bottom"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorItems="@(new int[] { 10, 20, 100, 500 })"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PagerSwitchToInputBoxButtonCount="10"
-            PagerVisibleNumericButtonCount="10"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            RowDoubleClick="Grid_OnRowDoubleClick"
-            FocusedRowEnabled="true" 
-            PageSize="12"
-            KeyFieldName="SegmentID"
-            ValidationEnabled="false"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            EditModelSaving="Grid_EditModelSaving"
-            DataItemDeleting="Grid_DataItemDeleting"
-            EditMode="GridEditMode.EditRow"
-            EditorRenderMode="GridEditorRenderMode.Integrated" >
-        <Columns>
-            <DxGridCommandColumn Width="160px" />
-            <DxGridDataColumn FieldName="SegmentID" DisplayFormat="D" MinWidth="50">                
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AsgmentType" DisplayFormat="D" MinWidth="50">
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="Value" DisplayFormat="D" MinWidth="50">             
-            </DxGridDataColumn> 
-          
-        </Columns>
-       
-     
-    </DxGrid>
-   
-  @*  <DxStackLayout>
-        <Items>
-            <Row>
-                <Column Style="padding:10px">
-                    <DxButton IconCssClass="fa fa-plus" Click="@(() => Grid.StartEditNewRowAsync())" />
-                  
-                    <DxButton IconCssClass="fa fa-minus" style=" background: red; border: red;" Click="@(() => Grid.CancelEditAsync())" />
-                </Column>
-            </Row>
-        </Items>
-    </DxStackLayout>
-       </DxFormLayoutItem>  
-    </DxFormLayout>*@
-
     </CardBody>
 </Card>
 
+<Card>
+    <CardBody>
+        @* ************************* DEVEXPRESS DATA GRID ************************* *@
+        <DxGrid @ref="SegmentGrid"
+                Data="@Segment"
+                @bind-SelectedDataItems="@selectedSegments"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="true"
+                EditMode="GridEditMode.EditRow"
+                EditNewRowPosition="GridEditNewRowPosition.Bottom"
+                PageSize="12"
+                PagerPosition="GridPagerPosition.Bottom"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorItems="@(new int[] { 10, 20, 100, 500 })"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                RowDoubleClick="Grid_OnRowDoubleClick"
+                FocusedRowEnabled="true"
+                FocusedRowChanged="Grid_OnFocusedRowChanged"
+                CustomizeEditModel="Grid_OnCustomizeEditModel"
+                EditModelSaving="Grid_EditModelSaving"
+                DataItemDeleting="Grid_DataItemDeleting"
+                EditorRenderMode="GridEditorRenderMode.Integrated"
+                CssClass="ch-360">
+            <Columns>
+                <DxGridSelectionColumn />
+                <DxGridDataColumn FieldName="@nameof(LotSerSegmentDto.SegmentID)" Width="30%" Caption="@L["SegmentID"]">
+                 
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(LotSerSegmentDto.AsgmentType)" Width="30%" Caption="@L["AsgmentType"]" />
+                <DxGridDataColumn FieldName="@nameof(LotSerSegmentDto.Value)" Width="30%" Caption="@L["Value"]">
+                </DxGridDataColumn>
+
+              
+            </Columns>
+        </DxGrid>
+        <Div class="mt-1 bt-1">
+            <Button Color="Color.Primary" Clicked="BtnAdd_Grid_OnClick" Size="Size.Small">
+                <i class="fa-plus fa"></i>
+            </Button>
+            <Button Color="Color.Secondary" Clicked="SegmentGrid.CancelEditAsync" Size="Size.Small">
+                <i class="fa-undo fa"></i>
+            </Button>
+            <Button Color="Color.Danger" Clicked="BtnDelete_Grid_OnClick" Size="Size.Small">
+                <i class="fa-trash fa"></i>
+            </Button>
+            <Button Color="Color.Danger" Clicked="SegmentGrid.SaveChangesAsync" Size="Size.Small">
+                <i class="fa-square-check fa"></i>
+            </Button>
+        </Div>
+    </CardBody>
+</Card>

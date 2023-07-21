@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Blazorise;
 using DevExpress.Blazor;
@@ -18,12 +17,13 @@ using Volo.Abp.AspNetCore.Components.Messages;
 using static HQSOFT.eBiz.Inventory.Permissions.InventoryPermissions;
 using Microsoft.AspNetCore.Components;
 using Volo.Abp.ObjectMapping;
+using AutoMapper.Internal.Mappers;
 
 namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
+
 {
     public partial class SerClassDetail
     {
-
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar { get; } = new PageToolbar();
         private IReadOnlyList<LotSerClassDto> LotSerClassList { get; set; }
@@ -32,18 +32,24 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
         private bool CanCreateLotSerClass { get; set; }
         private bool CanEditLotSerClass { get; set; }
         private bool CanDeleteLotSerClass { get; set; }
-        private Validations NewLotSerClassValidations { get; set; } = new();
+      
         private LotSerClassUpdateDto EditingLotSerClass { get; set; }
-        private Validations EditingLotSerClassValidations { get; set; } = new();
+     
         private Guid EditingLotSerClassId { get; set; }
         private readonly IUiMessageService _uiMessageService;
 
-        private LotSerSegmentCreateDto NewLotSerSegment { get; set; }
         private string FocusedColumn { get; set; }
-        private Validations NewLotSerSegmentValidations { get; set; } = new();
-        List<LotSerSegmentDto> listSegment { get; set; }
-        private IReadOnlyList<object> selectedSegment { get; set; }
-        IGrid Grid { get; set; }
+    
+        private IGrid SegmentGrid { get; set; } //Segment grid control name
+        private LotSerSegmentDto EditingSegment { get; set; } = new LotSerSegmentDto();  //Editing row on grid
+        private Guid EditingSegmentId { get; set; } = Guid.Empty; //Editing Segment Id on grid
+        private List<LotSerSegmentDto> Segment { get; set; } = new List<LotSerSegmentDto>(); //Data source used to bind to grid
+        private IReadOnlyList<object> selectedSegments { get; set; } = new List<LotSerSegmentDto>(); //Selected rows on grid
+        private bool CanCreateSegment { get; set; }
+        private bool CanEditSegment { get; set; }
+        private bool CanDeleteSegment { get; set; }
+        private Validations ClassValidations { get; set; } = new();
+        private Validations SegmentValidations { get; set; } = new();
 
         [Parameter]
         public string Id { get; set; }
@@ -61,20 +67,14 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
             await SetBreadcrumbItemsAsync();
             await SetPermissionsAsync();
 
-            //EditingLotSerClassId = Guid.Parse(Id);
-            //if (EditingLotSerClassId != Guid.Empty)
-            //{
-            //    var reasonCode = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
-            //    EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(reasonCode);
-            //}
-
             EditingLotSerClassId = Guid.Parse(Id);
             if (EditingLotSerClassId != Guid.Empty)
             {
-                var serClassID = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
-                EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(serClassID);
+                var sclas = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
+                EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(sclas);
+                await GetSegmentAsync();
             }
-            listSegment = await LotSerSegmentsAppService.GetListAllClassDetail(EditingLotSerClassId);
+
         }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
@@ -96,30 +96,22 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
 
             Toolbar.AddButton(L["New"], async () =>
             {
-                await SaveLotSerClassAsync(true);
+                await SaveClassessAsync(true);
             }, IconName.Add,
-            requiredPolicyName: InventoryPermissions.LotSerClasses.Create);
+         Color.Primary,
+         requiredPolicyName: InventoryPermissions.LotSerSegments.Create);
 
             Toolbar.AddButton(L["Save"], async () =>
             {
-                await SaveLotSerClassAsync(false);
+                await SaveClassessAsync(false);
             },
-           IconName.Save,
-           Color.Primary,
-           requiredPolicyName: InventoryPermissions.LotSerClasses.Edit);
-
-            Toolbar.AddButton(L["Delete"], async () =>
-            {
-                var confirmed = await _uiMessageService.Confirm(L["DeleteConfirmationMessage"]);
-                if (confirmed)
-                {
-                    await DeleteLotSerClassAsync(EditingLotSerClassId);
-                }
-            },
-            IconName.Delete,
-            Color.Danger,
-            requiredPolicyName: InventoryPermissions.LotSerClasses.Delete);
-
+              IconName.Save,
+              Color.Primary,
+               requiredPolicyName: InventoryPermissions.LotSerClasses.Edit);
+               Toolbar.AddButton(L["Delete"], DeleteClass,
+                IconName.Delete,
+                Color.Danger,
+                requiredPolicyName: InventoryPermissions.LotSerClasses.Delete);
 
             return ValueTask.CompletedTask;
         }
@@ -132,165 +124,190 @@ namespace HQSOFT.eBiz.Inventory.Blazor.Pages.Inventory.LClass
                             .IsGrantedAsync(InventoryPermissions.LotSerClasses.Edit);
             CanDeleteLotSerClass = await AuthorizationService
                             .IsGrantedAsync(InventoryPermissions.LotSerClasses.Delete);
+
+            CanCreateSegment = await AuthorizationService.IsGrantedAsync(InventoryPermissions.LotSerSegments.Create);
+            CanEditSegment = await AuthorizationService.IsGrantedAsync(InventoryPermissions.LotSerSegments.Edit);
+            CanDeleteSegment = await AuthorizationService.IsGrantedAsync(InventoryPermissions.LotSerSegments.Delete);
         }
-        private async Task CreateLotSerClassAsync()
+
+
+        //======================CRUD & Load Main Data Source Section=============================
+
+        private async Task GetSegmentAsync()
+        {
+            var result = await LotSerSegmentsAppService.GetListAsync(new GetLotSerSegmentsInput
+            {
+                LotSerClassId = EditingLotSerClassId,
+
+
+            });
+            Segment = ObjectMapper.Map<List<LotSerSegmentDto>, List<LotSerSegmentDto>>((List<LotSerSegmentDto>)result.Items);
+        }
+
+        private async Task NewClass()
+        {
+            EditingLotSerClass = new LotSerClassUpdateDto
+            {
+             
+               
+                TrackingMethod = TrackingMethod.L,
+                AssignMethod = AssignMethod.U,
+                IssueMethod =IssueMethod.L,
+                ConcurrencyStamp = string.Empty,
+
+            };
+            EditingLotSerClassId = Guid.Empty;
+            Segment = new List<LotSerSegmentDto>();
+            NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{Guid.Empty}");
+        }
+        private async Task SaveClassessAsync(bool IsNewNext)
         {
             try
             {
-                if (await EditingLotSerClassValidations.ValidateAll() == false)
+                await Task.CompletedTask;
+                if (await ClassValidations.ValidateAll() == false)
                 {
                     return;
                 }
-                LotSerClassCreateDto lotSerClassCreateDto = ObjectMapper.Map<LotSerClassUpdateDto, LotSerClassCreateDto>(EditingLotSerClass);
-                var serClass = await LotSerClassesAppService.CreateAsync(lotSerClassCreateDto);
 
-                foreach (var item in listSegment)
-                {
-                    var mapitem = ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentCreateDto>(item);
-                    mapitem.LotSerClassId = serClass.Id;
-                    await LotSerSegmentsAppService.CreateAsync(mapitem);
-                }
-
-
-                EditingLotSerClassId = serClass.Id;
-                EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(serClass);
-                NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{EditingLotSerClassId}");
-
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-
-        }
-
-
-        private async Task UpdateLotSerClassAsync()
-        {
-            try
-            {
-                if (await EditingLotSerClassValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                foreach (var item in listSegment)
-                {
-                    if (item.Id == Guid.Empty)
-                    {
-                        var mapitem = ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentCreateDto>(item);
-                        mapitem.LotSerClassId = EditingLotSerClassId;
-                        await LotSerSegmentsAppService.CreateAsync(mapitem);
-                    }
-                    else
-                    {
-                        var mapitem = ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentUpdateDto>(item);
-                        mapitem.LotSerClassId = EditingLotSerClassId;
-                        await LotSerSegmentsAppService.UpdateAsync(item.Id, mapitem);
-                    }
-                }
-                await LotSerClassesAppService.UpdateAsync(EditingLotSerClassId, EditingLotSerClass);
-                var serClass = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
-                EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(serClass);
-
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-        private async Task SaveLotSerClassAsync(bool isNewNext)
-        {
-            try
-            {
                 if (EditingLotSerClassId == Guid.Empty)
                 {
-                    await CreateLotSerClassAsync();
+                    var clas = await LotSerClassesAppService.CreateAsync(EditingLotSerClass);
+                    EditingLotSerClassId = clas.Id;
                 }
                 else
                 {
-                    await UpdateLotSerClassAsync();
+                    await LotSerClassesAppService.UpdateAsync(EditingLotSerClassId, EditingLotSerClass);
+                    var clas = await LotSerClassesAppService.GetAsync(EditingLotSerClassId);
+                    EditingLotSerClass = ObjectMapper.Map<LotSerClassDto, LotSerClassUpdateDto>(clas);
                 }
-                if (isNewNext)
+
+                await SaveSegmentAsync();
+
+                if (IsNewNext)
+                    await NewClass();
+                else
+                    NavigationManager.NavigateTo($"/Inventory/LotSerClasses/Detail/{EditingLotSerClassId}");
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+
+        }
+        private async Task SaveSegmentAsync()
+        {
+            try
+            {
+                await Task.CompletedTask;
+                foreach (var ser in Segment)
                 {
+                    if (ser.LotSerClassId == Guid.Empty)
+                        ser.LotSerClassId = EditingLotSerClassId;
 
-                    NavigationManager.NavigateTo($"/Inventory/LotSerClasses/{Guid.Empty}", true);
-
+                    if (ser.ConcurrencyStamp == string.Empty)
+                        await LotSerSegmentsAppService.CreateAsync(ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentUpdateDto>(ser));
+                    else
+                        await LotSerSegmentsAppService.UpdateAsync(ser.Id, ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentUpdateDto>(ser));
                 }
-
+                await GetSegmentAsync();
             }
             catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
         }
-        private async Task DeleteLotSerClassAsync(Guid Id)
+
+        private async Task DeleteClass()
+        {
+            var confirmed = await _uiMessageService.Confirm(L["DeleteConfirmationMessage"]);
+            if (confirmed)
+            {
+                await Task.CompletedTask;
+                await DeleteSegment();
+                await DeleteClassAsync(EditingLotSerClassId);
+            }
+        }
+        private async Task DeleteClassAsync(Guid Id)
         {
             await LotSerClassesAppService.DeleteAsync(Id);
             NavigationManager.NavigateTo("/Inventory/LotSerClasses");
         }
-
-        async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+        private async Task DeleteSegment()
         {
-            var edittableDetail = (LotSerSegmentDto)e.EditModel;
-            var createtableDetail = ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentCreateDto>(edittableDetail);
-            if (e.IsNew)
+            await Task.CompletedTask;
+            foreach (var ser in Segment)
             {
-                createtableDetail.LotSerClassId = EditingLotSerClassId;
-                await LotSerSegmentsAppService.CreateAsync(createtableDetail);
-            }
-            else
-            {
-                var updatetableDetail = ObjectMapper.Map<LotSerSegmentDto, LotSerSegmentUpdateDto>(edittableDetail);
-                await LotSerSegmentsAppService.UpdateAsync(edittableDetail.Id, updatetableDetail);
-            }
-            await UpdateDataAsync();
-
-        }
-        async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
-        {
-            var removetableDetail = (LotSerSegmentDto)e.DataItem;
-            if (EditingLotSerClassId == Guid.Empty)
-            {
-                listSegment.Remove(removetableDetail);
-            }
-            else
-            {
-                listSegment.Remove(removetableDetail);
-                await LotSerSegmentsAppService.DeleteAsync(removetableDetail.Id);
-                await UpdateDataAsync();
-            }
-            //var removetableDetail = (LotSerSegmentDto)e.DataItem;
-            //await LotSerSegmentsAppService.DeleteAsync(removetableDetail.Id);
-        }
-        void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-        {
-            if (e.IsNew)
-            {
-                var newEmployee = (LotSerSegmentDto)e.EditModel;
-                newEmployee = new LotSerSegmentDto();
+                if (ser.ConcurrencyStamp != string.Empty)
+                    await LotSerSegmentsAppService.DeleteAsync(ser.Id);
             }
         }
-        async Task UpdateDataAsync()
+        private async Task DeleteSegment(Guid Id)
         {
-            listSegment = await LotSerSegmentsAppService.GetListAllClassDetail(EditingLotSerClassId);
-        }
-        public Task UpdateListLotSegmentAsync(LotSerSegmentDto dataItem, LotSerSegmentDto newDataItem)
-        {
-
-            var index = listSegment.FindIndex(r => r.SegmentID == dataItem.SegmentID);
-            if (index != -1)
-            {
-                listSegment[index] = newDataItem;
-            }
-            return Task.CompletedTask;
+            await Task.CompletedTask;
+            await LotSerSegmentsAppService.DeleteAsync(Id);
+            await GetSegmentAsync();
         }
 
 
+    
+
+
+        //============================Controls triggers/events===================================
+
+        private async Task Grid_OnFocusedRowChanged(GridFocusedRowChangedEventArgs e)
+        {
+            await e.Grid.SaveChangesAsync();
+            EditingSegment = (LotSerSegmentDto)e.DataItem;
+            EditingSegmentId = EditingSegment.Id;
+        }
         private async Task Grid_OnRowDoubleClick(GridRowClickEventArgs e)
         {
             FocusedColumn = e.Column.Name;
             await e.Grid.StartEditRowAsync(e.VisibleIndex);
         }
+        private void Grid_OnCustomizeEditModel(GridCustomizeEditModelEventArgs e)
+        {
+
+            if (e.IsNew)
+            {
+                var newRow = (LotSerSegmentDto)e.EditModel;
+                newRow.Id = Guid.Empty;
+                newRow.LotSerClassId = EditingLotSerClassId;
+                newRow.ConcurrencyStamp = string.Empty;
+
+            }
+        }
+        private void Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+        {
+            if (e.EditModel != null)
+                Segment.Add(e.EditModel as LotSerSegmentDto);
+        }
+
+        private async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+        {
+            if (e.DataItem != null)
+                await DeleteSegment((e.DataItem as LotSerSegmentDto).Id);
+        }
+
+        private async Task BtnAdd_Grid_OnClick()
+        {
+            await Task.CompletedTask;
+            await SegmentGrid.DeselectAllAsync();
+            await SegmentGrid.SelectAllAsync(false);
+            await SegmentGrid.StartEditNewRowAsync();
+        }
+
+        private async Task BtnDelete_Grid_OnClick()
+        {
+            if (selectedSegments != null)
+            {
+                foreach (LotSerSegmentDto row in selectedSegments)
+                    await DeleteSegment(row.Id);
+                selectedSegments = null;
+            }
+        }
+
     }
+
 }

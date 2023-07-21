@@ -4,6 +4,16 @@
     "SamplePageMessage": "A sample page for the Inventory module",
     "Menu:Inventory": "Inventory",
     "Permission:ReasonCodes": "Reason Codes",
+    "Enum:ReasonCode.1": "Sales",
+    "Enum:ReasonCode.2": "Credit write off",
+    "Enum:ReasonCode.3": "Balance write off",
+    "Enum:ReasonCode.4": "Issue",
+    "Enum:ReasonCode.5": "Receipt",
+    "Enum:ReasonCode.6": "Adjustment",
+    "Enum:ReasonCode.7": "Transfer",
+    "Enum:ReasonCode.8": "Vendor return",
+    "Enum:ReasonCode.9": "Production",
+    "Enum:ReasonCode.10": "Assembly disassembly",
     "Permission:Inventory": "Inventory",
     "Permission:Create": "Create",
     "Permission:Edit": "Edit",
@@ -123,6 +133,6 @@
     "MinAsgmentType": "Min Asgment Type",
     "MinValue": "Min Value",
     "MaxAsgmentType": "Max Asgment Type",
-    "MaxValue": "Max Value"
+    "MaxValue": "Max Value",
   }
 }

@@ -19,6 +19,7 @@ using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using HQSOFT.eBiz.Inventory.Shared;
+using Volo.Abp.ObjectMapping;
 
 namespace HQSOFT.eBiz.Inventory.LotSerSegments
 {
@@ -38,19 +39,19 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             _lotSerSegmentRepository = lotSerSegmentRepository;
             _lotSerSegmentManager = lotSerSegmentManager; _lotSerClassRepository = lotSerClassRepository;
         }
-
-        public virtual async Task<PagedResultDto<LotSerSegmentWithNavigationPropertiesDto>> GetListAsync(GetLotSerSegmentsInput input)
+        public virtual async Task<PagedResultDto<LotSerSegmentDto>> GetListAsync(GetLotSerSegmentsInput input)
         {
             var totalCount = await _lotSerSegmentRepository.GetCountAsync(input.FilterText, input.SegmentIDMin, input.SegmentIDMax, input.AsgmentType, input.Value, input.LotSerClassId);
-            var items = await _lotSerSegmentRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.SegmentIDMin, input.SegmentIDMax, input.AsgmentType, input.Value, input.LotSerClassId, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var items = await _lotSerSegmentRepository.GetListAsync(input.FilterText, input.SegmentIDMin, input.SegmentIDMax, input.AsgmentType, input.Value, input.LotSerClassId, input.Sorting, input.MaxResultCount, input.SkipCount);
 
-            return new PagedResultDto<LotSerSegmentWithNavigationPropertiesDto>
+            return new PagedResultDto<LotSerSegmentDto>
             {
                 TotalCount = totalCount,
-                Items = ObjectMapper.Map<List<LotSerSegmentWithNavigationProperties>, List<LotSerSegmentWithNavigationPropertiesDto>>(items)
+                Items = ObjectMapper.Map<List<LotSerSegment>, List<LotSerSegmentDto>>(items)
             };
         }
 
+       
         public virtual async Task<LotSerSegmentWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id)
         {
             return ObjectMapper.Map<LotSerSegmentWithNavigationProperties, LotSerSegmentWithNavigationPropertiesDto>
@@ -85,7 +86,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
         }
 
         [Authorize(InventoryPermissions.LotSerSegments.Create)]
-        public virtual async Task<LotSerSegmentDto> CreateAsync(LotSerSegmentCreateDto input)
+        public virtual async Task<LotSerSegmentDto> CreateAsync(LotSerSegmentUpdateDto input)
         {
 
             var lotSerSegment = await _lotSerSegmentManager.CreateAsync(

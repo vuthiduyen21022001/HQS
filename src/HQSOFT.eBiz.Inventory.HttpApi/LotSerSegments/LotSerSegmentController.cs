@@ -26,7 +26,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
         }
 
         [HttpGet]
-        public Task<PagedResultDto<LotSerSegmentWithNavigationPropertiesDto>> GetListAsync(GetLotSerSegmentsInput input)
+        public Task<PagedResultDto<LotSerSegmentDto>> GetListAsync(GetLotSerSegmentsInput input)
         {
             return _lotSerSegmentsAppService.GetListAsync(input);
         }
@@ -53,7 +53,7 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
         }
 
         [HttpPost]
-        public virtual Task<LotSerSegmentDto> CreateAsync(LotSerSegmentCreateDto input)
+        public virtual Task<LotSerSegmentDto> CreateAsync(LotSerSegmentUpdateDto input)
         {
             return _lotSerSegmentsAppService.CreateAsync(input);
         }
@@ -92,6 +92,6 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             return _lotSerSegmentsAppService.GetListAllClassDetail(id);
         }
 
-
+     
     }
 }

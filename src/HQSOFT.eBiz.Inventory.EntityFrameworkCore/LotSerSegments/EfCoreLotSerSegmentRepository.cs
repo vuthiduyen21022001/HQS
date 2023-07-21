@@ -87,12 +87,13 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             int? segmentIDMax = null,
             Typeee? asgmentType = null,
             string value = null,
+             Guid? lotSerClassId = null,
             string sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetQueryableAsync()), filterText, segmentIDMin, segmentIDMax, asgmentType, value);
+            var query = ApplyFilter((await GetQueryableAsync()), filterText, segmentIDMin, segmentIDMax, asgmentType, value, lotSerClassId);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? LotSerSegmentConsts.GetDefaultSorting(false) : sorting);
             return await query.PageBy(skipCount, maxResultCount).ToListAsync(cancellationToken);
         }
@@ -117,14 +118,16 @@ namespace HQSOFT.eBiz.Inventory.LotSerSegments
             int? segmentIDMin = null,
             int? segmentIDMax = null,
             Typeee? asgmentType = null,
-            string value = null)
+            string value = null,
+            Guid? lotSerClassId = null)
         {
             return query
                     .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Value.Contains(filterText))
                     .WhereIf(segmentIDMin.HasValue, e => e.SegmentID >= segmentIDMin.Value)
                     .WhereIf(segmentIDMax.HasValue, e => e.SegmentID <= segmentIDMax.Value)
                     .WhereIf(asgmentType.HasValue, e => e.AsgmentType == asgmentType)
-                    .WhereIf(!string.IsNullOrWhiteSpace(value), e => e.Value.Contains(value));
+                    .WhereIf(!string.IsNullOrWhiteSpace(value), e => e.Value.Contains(value))
+                    .WhereIf(lotSerClassId.HasValue, e => e.LotSerClassId == lotSerClassId);
         }
     }
 }
